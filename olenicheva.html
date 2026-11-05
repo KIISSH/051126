@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест по программной инженерии</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+  }
+  .container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 18px 50px;
+  }
+  .header {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.08);
+    margin-bottom: 20px;
+  }
+  h1 { margin: 0 0 8px; }
+  .subtitle { color: #6b7280; margin: 0; }
+  .progress-wrap {
+    margin-top: 20px;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress {
+    height: 100%;
+    width: 0%;
+    background: #2563eb;
+    transition: width .25s;
+  }
+  .question {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 3px 14px rgba(0,0,0,.06);
+  }
+  .question h2 {
+    font-size: 18px;
+    margin: 0 0 18px;
+  }
+  .option {
+    display: block;
+    margin: 10px 0;
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .15s;
+    background: #fff;
+  }
+  .option:hover { border-color: #93c5fd; background: #f8fbff; }
+  .option.correct-answer { border-color: #16a34a; background: #f0fdf4; }
+  .option.wrong-answer { border-color: #dc2626; background: #fef2f2; }
+  .feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .feedback.correct { display: block; color: #166534; background: #f0fdf4; }
+  .feedback.wrong { display: block; color: #991b1b; background: #fef2f2; }
+  .option.selected { border-color: #2563eb; background: #eff6ff; }
+  .option input { margin-right: 10px; }
+  button {
+    border: 0;
+    border-radius: 10px;
+    padding: 14px 22px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 8px;
+  }
+  #checkBtn { background: #2563eb; color: white; }
+  #resetBtn { background: #e5e7eb; color: #111827; }
+  button:hover { opacity: .9; }
+  #result {
+    display: none;
+    background: white;
+    border-radius: 16px;
+    padding: 26px;
+    margin-top: 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.08);
+  }
+  .score { font-size: 28px; font-weight: bold; margin-bottom: 8px; }
+  .grade { font-size: 18px; margin-bottom: 20px; }
+  .wrong {
+    border-left: 4px solid #dc2626;
+    padding: 10px 14px;
+    margin: 10px 0;
+    background: #fef2f2;
+    border-radius: 6px;
+  }
+  .correct {
+    border-left: 4px solid #16a34a;
+    padding: 10px 14px;
+    margin: 10px 0;
+    background: #f0fdf4;
+    border-radius: 6px;
+  }
+  .unanswered {
+    border-left: 4px solid #d97706;
+    padding: 10px 14px;
+    margin: 10px 0;
+    background: #fffbeb;
+    border-radius: 6px;
+  }
+  .small { color: #6b7280; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Тест по программной инженерии</h1>
+    <p class="subtitle">20 вопросов • один правильный ответ • вопросы и варианты перемешиваются случайно</p>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+    <p class="small" id="progressText">Отвечено: 0 из 20</p>
+  </div>
+
+  <form id="quiz"></form>
+
+  <div class="header">
+    <button type="button" id="checkBtn">Проверить ответы</button>
+    <button type="button" id="resetBtn">Начать заново</button>
+    <button class="home" onclick="location.href='index.html'">Главное меню</button>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Что такое дизассемблирование?",
+    options: [
+      "Преобразование исходного кода в машинный код",
+      "Преобразование машинного кода в ассемблерное представление",
+      "Преобразование ассемблерного кода в язык высокого уровня",
+      "Оптимизация машинного кода"
+    ],
+    answer: 1
+  },
+  {
+    q: "Какова основная цель применения инструментов дизассемблирования и отладки?",
+    options: [
+      "Только увеличение скорости программы",
+      "Только создание документации",
+      "Исправление ошибок и исследование работы программ при отсутствии исходного кода",
+      "Создание интерфейса программы"
+    ],
+    answer: 2
+  },
+  {
+    q: "Для какого типа анализа часто требуется листинг дизассемблирования?",
+    options: [
+      "Анализа интерфейса пользователя",
+      "Анализа вредоносного ПО",
+      "Анализа требований заказчика",
+      "Анализа документации"
+    ],
+    answer: 1
+  },
+  {
+    q: "Какова основная цель программных измерительных мониторов (ПИМ)?",
+    options: [
+      "Компиляция программы",
+      "Исправление синтаксических ошибок",
+      "Сбор и накопление данных о ходе выполнения программы",
+      "Защита программы от копирования"
+    ],
+    answer: 2
+  },
+  {
+    q: "Какие две группы входят в динамический профиль выполнения программы?",
+    options: [
+      "Статические и динамические",
+      "Частотные и временные",
+      "Лексические и синтаксические",
+      "Функциональные и структурные"
+    ],
+    answer: 1
+  },
+  {
+    q: "Какой инструмент Microsoft Visual Studio предоставляет средства профилирования?",
+    options: [
+      "Обозреватель решений",
+      "Редактор кода",
+      "Средства диагностики (Diagnostic Tools)",
+      "Диспетчер задач"
+    ],
+    answer: 2
+  },
+  {
+    q: "Что согласно ANSI/IEEE-729-83 определяет «ошибку» (error)?",
+    options: [
+      "Любое завершение программы",
+      "Состояние программы, при котором выдаются неправильные результаты",
+      "Только синтаксическую ошибку",
+      "Только сбой операционной системы"
+    ],
+    answer: 1
+  },
+  {
+    q: "Какой метод верификации использует математическую модель программы?",
+    options: [
+      "Тестирование «чёрного ящика»",
+      "Формальные методы верификации",
+      "Ручное тестирование",
+      "Регрессионное тестирование"
+    ],
+    answer: 1
+  },
+  {
+    q: "Из каких двух основных шагов состоит процесс статического анализа?",
+    options: [
+      "Компиляция и запуск программы",
+      "Создание дерева кода и анализ этого дерева",
+      "Тестирование и отладка",
+      "Лексический анализ и компиляция"
+    ],
+    answer: 1
+  },
+  {
+    q: "Какой компонент разбивает исходный код на отдельные лексемы?",
+    options: [
+      "Компоновщик",
+      "Отладчик",
+      "Лексер",
+      "Интерпретатор"
+    ],
+    answer: 2
+  },
+  {
+    q: "Что характерно для тестирования «чёрного ящика»?",
+    options: [
+      "Тестировщик обязательно изучает исходный код",
+      "Исследуется только структура программы",
+      "Функциональность исследуется без доступа к программному коду",
+      "Проверяется только скорость выполнения"
+    ],
+    answer: 2
+  },
+  {
+    q: "Что подразумевает анализ граничных значений?",
+    options: [
+      "Проверку только среднего значения диапазона",
+      "Проверку случайных значений",
+      "Проверку значений до границы, на границе и после неё",
+      "Проверку только минимального значения"
+    ],
+    answer: 2
+  },
+  {
+    q: "Что измеряет метрика F в программировании?",
+    options: [
+      "Количество функций в программе",
+      "Отношение числа комментариев к числу строк или операторов",
+      "Количество ошибок на 100 строк",
+      "Среднее время выполнения программы"
+    ],
+    answer: 1
+  },
+  {
+    q: "Как называется показатель, равный числу утверждений между первым и последним появлением идентификатора?",
+    options: [
+      "Спен",
+      "Холстед",
+      "Чепин",
+      "Функциональная плотность"
+    ],
+    answer: 0
+  },
+  {
+    q: "Какая функциональная группа имеет наибольший вес в метрике Чепина?",
+    options: [
+      "P — входные данные",
+      "M — переменные, изменяемые в программе",
+      "C — управляющие переменные",
+      "T — временные переменные"
+    ],
+    answer: 2
+  },
+  {
+    q: "Кто ввёл метрику теоретической длины программы N?",
+    options: [
+      "Эдсгер Дейкстра",
+      "Морис Холстед",
+      "Фредерик Брукс",
+      "Никлаус Вирт"
+    ],
+    answer: 1
+  },
+  {
+    q: "Что используется для измерения критериев и характеристик качества программ?",
+    options: [
+      "Алгоритмы",
+      "Метрики",
+      "Компиляторы",
+      "Лексемы"
+    ],
+    answer: 1
+  },
+  {
+    q: "Что такое верификация программного обеспечения?",
+    options: [
+      "Проверка соответствия программы потребностям заказчика",
+      "Подтверждение на основе объективных свидетельств того, что заданные требования выполнены",
+      "Проверка только пользовательского интерфейса",
+      "Определение производительности программы"
+    ],
+    answer: 1
+  },
+  {
+    q: "Что такое валидация программной системы?",
+    options: [
+      "Проверка соответствия того, что делает программа, тому, что нужно заказчику",
+      "Проверка синтаксиса программы",
+      "Преобразование программы в машинный код",
+      "Проверка только исходного кода"
+    ],
+    answer: 0
+  },
+  {
+    q: "Что такое ревьюирование кода?",
+    options: [
+      "Автоматическая компиляция программы",
+      "Систематическая проверка исходного кода для обнаружения и исправления ошибок",
+      "Удаление комментариев из программы",
+      "Перевод программы на другой язык"
+    ],
+    answer: 1
+  }
+];
+
+const explanations = ["Дизассемблирование переводит машинный код в читаемое ассемблерное представление. Декомпиляция — это уже попытка получить код более высокого уровня.", "Такие инструменты используют для поиска и исправления ошибок, а также для исследования поведения программ, когда исходный код недоступен.", "Дизассемблирование особенно полезно при анализе вредоносного ПО и исследовании его поведения без исходников.", "ПИМ собирают данные о выполнении программы и накапливают их для последующего анализа производительности и поведения.", "Частотные профили показывают распределение потребления ресурсов, а временные — распределение времени потребления.", "В Visual Studio для профилирования во время отладки используется окно «Средства диагностики» (Diagnostic Tools).", "Ошибка — это состояние программы, при котором выдаются неправильные результаты из-за дефектов в программе или процессе её разработки.", "Формальные методы используют математические модели и спецификации для проверки корректности свойств программы.", "Статический анализ включает построение абстрактного дерева синтаксиса и последующий анализ этого дерева.", "Лексер разбивает исходный текст на лексемы: ключевые слова, идентификаторы, константы и другие элементы.", "При тестировании «чёрного ящика» внутреннее устройство программы неизвестно: тесты строятся на требованиях и спецификации.", "На границе проверяют значение до неё, само граничное значение и значение после неё. Например: 99, 100 и 101.", "Метрика F показывает отношение числа комментариев к числу строк или операторов: F = N_ком / N_стр.", "Спен показывает расстояние между первым и последним появлением идентификатора. Чем он больше, тем сложнее сопровождение, тестирование и отладка.", "В метрике Чепина группа C — управляющие переменные — имеет максимальный вес 3, поскольку влияет на поток управления.", "Метрику теоретической длины программы N ввёл Морис Холстед. Она основана на количестве различных и общих операторов и операндов.", "Для измерения характеристик качества программ применяются метрики — количественные показатели свойств программного продукта.", "Верификация проверяет соответствие программы заданным требованиям и спецификации на основе объективных свидетельств.", "Валидация проверяет, соответствует ли результат работы программы реальным потребностям и ожиданиям заказчика.", "Ревьюирование кода — систематическая проверка исходного кода для обнаружения ошибок и повышения качества программы."];
+
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function randomizeTest() {
+  shuffleArray(questions);
+  questions.forEach(item => {
+    const options = item.options.map((text, index) => ({
+      text,
+      correct: index === item.answer
+    }));
+    shuffleArray(options);
+    item.options = options.map(x => x.text);
+    item.answer = options.findIndex(x => x.correct);
+  });
+}
+
+randomizeTest();
+
+const quiz = document.getElementById("quiz");
+const progress = document.getElementById("progress");
+const progressText = document.getElementById("progressText");
+const result = document.getElementById("result");
+
+function renderQuiz() {
+  quiz.innerHTML = "";
+  questions.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "question";
+    div.innerHTML = `<h2>${i + 1}. ${item.q}</h2>`;
+    item.options.forEach((option, j) => {
+      const label = document.createElement("label");
+      label.className = "option";
+      label.innerHTML = `
+        <input type="radio" name="q${i}" value="${j}">
+        ${String.fromCharCode(1040 + j)}) ${option}
+      `;
+      label.querySelector("input").addEventListener("change", (event) => {
+        handleAnswer(i, Number(event.target.value));
+        updateProgress();
+      });
+      div.appendChild(label);
+    });
+    const feedback = document.createElement("div");
+    feedback.className = "feedback";
+    feedback.id = `feedback${i}`;
+    div.appendChild(feedback);
+    quiz.appendChild(div);
+  });
+}
+
+function handleAnswer(questionIndex, selectedValue) {
+  const item = questions[questionIndex];
+  const questionDiv = quiz.children[questionIndex];
+  const options = questionDiv.querySelectorAll(".option");
+  const feedback = document.getElementById(`feedback${questionIndex}`);
+
+  // После первого ответа блокируем вопрос.
+  options.forEach((label, j) => {
+    const input = label.querySelector("input");
+    input.disabled = true;
+
+    if (j === item.answer) label.classList.add("correct-answer");
+    if (j === selectedValue && selectedValue !== item.answer) {
+      label.classList.add("wrong-answer");
+    }
+  });
+
+  if (selectedValue === item.answer) {
+    feedback.className = "feedback correct";
+    feedback.innerHTML = `<strong>✓ Правильно!</strong><br>
+      <span>${explanations[questionIndex]}</span>`;
+  } else {
+    feedback.className = "feedback wrong";
+    feedback.innerHTML = `<strong>✗ Неправильно.</strong><br>
+      <span><b>Правильный ответ:</b> ${item.options[item.answer]}</span><br>
+      <span><b>Почему:</b> ${explanations[questionIndex]}</span>`;
+  }
+}
+
+function updateProgress() {
+  let answered = 0;
+  questions.forEach((_, i) => {
+    if (document.querySelector(`input[name="q${i}"]:checked`)) answered++;
+  });
+  const percent = answered / questions.length * 100;
+  progress.style.width = percent + "%";
+  progressText.textContent = `Отвечено: ${answered} из ${questions.length}`;
+}
+
+document.getElementById("checkBtn").addEventListener("click", () => {
+  let score = 0;
+  let unanswered = 0;
+  let details = "";
+
+  questions.forEach((item, i) => {
+    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!selected) {
+      unanswered++;
+      details += `<div class="unanswered"><b>${i + 1}. ${item.q}</b><br>Не отвечено. Правильный ответ: <b>${item.options[item.answer]}</b></div>`;
+      return;
+    }
+
+    const value = Number(selected.value);
+    if (value === item.answer) {
+      score++;
+      details += `<div class="correct"><b>${i + 1}. Верно ✓</b></div>`;
+    } else {
+      details += `<div class="wrong"><b>${i + 1}. Ошибка ✗</b><br>
+        Ваш ответ: ${item.options[value]}<br>
+        Правильный ответ: <b>${item.options[item.answer]}</b>
+      </div>`;
+    }
+  });
+
+  let grade;
+  if (score >= 18) grade = "Отлично!";
+  else if (score >= 15) grade = "Хорошо!";
+  else if (score >= 11) grade = "Удовлетворительно";
+  else grade = "Нужно повторить материал";
+
+  result.style.display = "block";
+  result.innerHTML = `
+    <div class="score">Результат: ${score} / ${questions.length}</div>
+    <div class="grade">${grade}</div>
+    <p>Правильных ответов: <b>${score}</b>. Ошибок: <b>${questions.length - score - unanswered}</b>. Не отвечено: <b>${unanswered}</b>.</p>
+    <hr>
+    <h3>Разбор</h3>
+    ${details}
+  `;
+  result.scrollIntoView({ behavior: "smooth" });
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  randomizeTest();
+  renderQuiz();
+  result.style.display = "none";
+  result.innerHTML = "";
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+renderQuiz();
+updateProgress();
+</script>
+</body>
+</html>
